@@ -15,7 +15,7 @@ import java.io.UnsupportedEncodingException;
 * @author: dctang
 * @date: 2020/5/30 9:38
 */
-@Configuration
+
 public class OneInterceptor implements HandlerInterceptor {
 
     public OneInterceptor() {

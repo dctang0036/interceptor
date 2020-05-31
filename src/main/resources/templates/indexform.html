@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>防止表单重复提交</title>
+    <script th:src="@{/jquery-2.1.4.js}" type="text/javascript"></script>
+</head>
+<body>
+    <h1>表单信息</h1>
+    <form id = "sub" >
+        姓名：<input type="text" name="name" placeholder="请输入姓名"/> <br>
+        生日：<input type="text" name="date" placeholder="请输入生日"/> <br>
+        <input type="button" onclick="sub()" value="提交"/>
+
+    </form>
+
+    <input id="token1" type="hidden" th:value="${token}">
+
+    <script type="text/javascript">
+        var dd = [[${token}]];
+
+        function sub() {
+            var obj = $("#sub").serialize();
+            console.log($("#token1").val());
+
+            $.ajax({
+                headers: {
+                    "token": $("#token1").val()  // 此处放置后台放回的token
+                },
+                async: true,
+                type: 'GET',
+                url: '/commit?' + obj,
+                error: function(request){
+                    if (request.status == 900)
+                        alert("表单已提交！");
+                    else {
+                        alert("error")
+                    }
+                },
+                success: function (response) {
+                    alert("sucess");
+                }
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
