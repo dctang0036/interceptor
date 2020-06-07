@@ -28,6 +28,7 @@ public class AvoidDuplicateSubmit {
     @RequestMapping(value = "/toindex", method = RequestMethod.GET)
     public ModelAndView index(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
+        // 取出session中的token的值
         mv.addObject("token", request.getSession(false).getAttribute("token"));
         mv.setViewName("indexform");
         return mv;

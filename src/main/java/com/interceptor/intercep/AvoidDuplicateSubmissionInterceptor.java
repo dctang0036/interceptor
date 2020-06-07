@@ -13,7 +13,8 @@ public class AvoidDuplicateSubmissionInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        HttpSession session = request.getSession(false);
+        // 首次请求创建session，第二次请求返回当前请求关联的session
+        HttpSession session = request.getSession(true);
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         AvoidDuplicateSub annotation = method.getAnnotation(AvoidDuplicateSub.class);
@@ -22,8 +23,8 @@ public class AvoidDuplicateSubmissionInterceptor implements HandlerInterceptor {
             boolean needSaveSession = annotation.needSaveToken();
             String tokenName = annotation.tokenName();
             if (needSaveSession) {
-                // 首次拦截，创建token
-                request.getSession().setAttribute(tokenName, TokenProccessor.getInstance().makeToken());
+                // 首次拦截，没有session创建session，插入token
+                session.setAttribute(tokenName, TokenProccessor.getInstance().makeToken());
             }
 
             // 第二次拦截，移除token
@@ -34,17 +35,20 @@ public class AvoidDuplicateSubmissionInterceptor implements HandlerInterceptor {
                     response.setStatus(900);
                     return false;
                 }
-                request.getSession(false).removeAttribute(tokenName);
+                // session 移除数据
+                session.removeAttribute(tokenName);
             }
         }
         return true;
     }
 
     private boolean isRepeatSubmit(HttpServletRequest request, String tokenName) {
+        // getAttribute返回的是object，需要进行转化
         String serverToken = (String) request.getSession(false).getAttribute(tokenName);
         if (serverToken == null) {
             return true;
         }
+        // 获取请求头
         String clientToken = request.getHeader(tokenName);
         if (clientToken == null) {
             return true;
